@@ -25,7 +25,8 @@ export default function ChatScreen({ route }) {
         setLoading(true);
 
         try {
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/chat';
+            // Use base URL and append endpoint
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
             const payload = {
                 message: input,
@@ -36,7 +37,7 @@ export default function ChatScreen({ route }) {
                 }
             };
 
-            const response = await axios.post(API_URL, payload);
+            const response = await axios.post(`${API_URL}/api/chat`, payload);
 
             const aiResponse = response.data.response || "I didn't understand that.";
             const aiMsg = { id: (Date.now() + 1).toString(), text: aiResponse, sender: 'ai', type: response.data.type };
