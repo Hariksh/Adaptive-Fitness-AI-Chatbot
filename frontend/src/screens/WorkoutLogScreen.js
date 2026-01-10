@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import * as Haptics from 'expo-haptics';
 
 export default function WorkoutLogScreen({ navigation }) {
     const [activity, setActivity] = useState('');
@@ -29,8 +30,7 @@ export default function WorkoutLogScreen({ navigation }) {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
-            // Navigate to Success Screen
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             navigation.replace('WorkoutSuccess');
 
         } catch (error) {

@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import * as Haptics from 'expo-haptics';
 
 export default function CalorieTrackerScreen({ navigation }) {
     const [dailyGoal, setDailyGoal] = useState(2500);
@@ -12,7 +13,6 @@ export default function CalorieTrackerScreen({ navigation }) {
     const [meals, setMeals] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
 
-    // Form Inputs & State
     const [foodName, setFoodName] = useState('');
     const [foodCalories, setFoodCalories] = useState('');
     const [foodType, setFoodType] = useState('Breakfast');
@@ -76,6 +76,7 @@ export default function CalorieTrackerScreen({ navigation }) {
             setModalVisible(false);
             resetForm();
             fetchMeals();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
         } catch (error) {
             console.error("Error saving meal", error);
@@ -191,7 +192,10 @@ export default function CalorieTrackerScreen({ navigation }) {
                                 <TouchableOpacity
                                     key={type}
                                     style={[styles.typeButton, foodType === type && styles.typeButtonActive]}
-                                    onPress={() => setFoodType(type)}
+                                    onPress={() => {
+                                        setFoodType(type);
+                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                    }}
                                 >
                                     <Text style={[styles.typeText, foodType === type && styles.typeTextActive]}>{type}</Text>
                                 </TouchableOpacity>
