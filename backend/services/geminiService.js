@@ -79,11 +79,28 @@ function getSystemPrompt(userContext = {}) {
         `;
     }
 
+    let nutritionContext = "";
+    if (userContext.todaysMeals && userContext.todaysMeals.length > 0) {
+        const meals = userContext.todaysMeals.map(m =>
+            `- ${m.name} (${m.type}): ${m.calories} cal`
+        ).join("\n");
+        const totalCals = userContext.todaysMeals.reduce((sum, m) => sum + m.calories, 0);
+
+        nutritionContext = `
+        Today's Nutrition:
+        ${meals}
+        Total Calories Consumed Today: ${totalCals}
+        
+        Consider their calorie intake when giving advice.
+        `;
+    }
+
     return `
 ${personalityInstruction}
 ${durationInstruction}
 ${profileContext}
 ${workoutContext}
+${nutritionContext}
 
 User context: ${JSON.stringify(userContext)}
 Do NOT provide medical diagnosis.

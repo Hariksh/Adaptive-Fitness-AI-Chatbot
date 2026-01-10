@@ -13,6 +13,8 @@ import WorkoutLogScreen from '../screens/WorkoutLogScreen';
 import ActivityHistoryScreen from '../screens/ActivityHistoryScreen';
 import StatsScreen from '../screens/StatsScreen';
 import MealPlanScreen from '../screens/MealPlanScreen';
+import CalorieTrackerScreen from '../screens/CalorieTrackerScreen';
+import WorkoutSuccessScreen from '../screens/WorkoutSuccessScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -82,6 +84,16 @@ export default function AppNavigator() {
                     name="MealPlan"
                     component={MealPlanScreen}
                     options={{ title: 'Meal Plan' }}
+                />
+                <Stack.Screen
+                    name="CalorieTracker"
+                    component={CalorieTrackerScreen}
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                    name="WorkoutSuccess"
+                    component={WorkoutSuccessScreen}
+                    options={{ headerShown: false, presentation: 'transparentModal' }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

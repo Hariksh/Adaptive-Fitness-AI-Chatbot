@@ -34,9 +34,11 @@ export default function DashboardScreen({ navigation }) {
                 const workoutRes = await axios.get(`${API_URL}/api/workouts`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setWorkoutCount(workoutRes.data.length);
-                if (workoutRes.data.length > 0) {
-                    setLatestWorkout(workoutRes.data[0]);
+                if (Array.isArray(workoutRes.data)) {
+                    setWorkoutCount(workoutRes.data.length);
+                    if (workoutRes.data.length > 0) {
+                        setLatestWorkout(workoutRes.data[0]);
+                    }
                 }
             }
         } catch (error) {
@@ -89,8 +91,10 @@ export default function DashboardScreen({ navigation }) {
                     </View>
                     <View style={styles.summaryDivider} />
                     <View style={styles.summaryItem}>
-                        <Text style={styles.summaryLabel}>Calories</Text>
-                        <Text style={styles.summaryValue}>840</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('CalorieTracker')}>
+                            <Text style={styles.summaryLabel}>Calories</Text>
+                            <Text style={styles.summaryValue}>840</Text>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.summaryDivider} />
                     <View style={styles.summaryItem}>
@@ -146,6 +150,13 @@ export default function DashboardScreen({ navigation }) {
                         icon="nutrition-outline"
                         color={['#11998e', '#38ef7d']}
                         onPress={() => navigation.navigate('MealPlan')}
+                    />
+                    <QuickActionCard
+                        title="Calorie Tracker"
+                        subtitle="Log meals & stats"
+                        icon="flame-outline"
+                        color={['#FF9966', '#FF5E62']}
+                        onPress={() => navigation.navigate('CalorieTracker')}
                     />
                 </View>
 

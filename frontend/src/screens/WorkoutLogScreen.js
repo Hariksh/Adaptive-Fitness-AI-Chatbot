@@ -7,22 +7,36 @@ import * as SecureStore from 'expo-secure-store';
 
 export default function WorkoutLogScreen({ navigation }) {
     const [activity, setActivity] = useState('');
-    const [duration, setDuration] = useState(''); 
+    const [duration, setDuration] = useState('');
     const [calories, setCalories] = useState('');
     const [notes, setNotes] = useState('');
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!activity || !duration) {
             Alert.alert('Missing Info', 'Please enter an activity and duration.');
             return;
         }
 
-        // Mock saving logic
-        console.log({ activity, duration, calories, notes });
+        try {
+            const token = await SecureStore.getItemAsync('userToken');
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-        Alert.alert('Success', 'Workout Logged!', [
-            { text: 'Great!', onPress: () => navigation.goBack() }
-        ]);
+            await axios.post(`${API_URL}/api/workouts`, {
+                activityType: activity,
+                duration: parseFloat(duration),
+                caloriesBurned: parseFloat(calories) || 0,
+                notes: notes
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Navigate to Success Screen
+            navigation.replace('WorkoutSuccess');
+
+        } catch (error) {
+            console.error("Error logging workout", error);
+            Alert.alert('Error', 'Failed to log workout');
+        }
     };
 
     return (
