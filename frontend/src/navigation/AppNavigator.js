@@ -5,6 +5,7 @@ import WelcomeScreen from '../screens/WelcomeScreen';
 import ChatScreen from '../screens/ChatScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +16,7 @@ export default function AppNavigator() {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Signup" component={SignupScreen} />
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen name="Profile" component={ProfileScreen} />
                 <Stack.Screen
                     name="Chat"
                     component={ChatScreen}

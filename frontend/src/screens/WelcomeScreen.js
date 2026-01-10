@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Animated, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { personalities } from '../utils/mockData';
 
 const { width } = Dimensions.get('window');
@@ -40,6 +41,14 @@ export default function WelcomeScreen({ navigation }) {
             <SafeAreaView style={styles.safeArea}>
                 <ScrollView contentContainerStyle={styles.content}>
                     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+                        <View style={styles.header}>
+                            <View />
+                            <TouchableOpacity style={styles.profileIcon} onPress={() => navigation.navigate('Profile')}>
+                                <Ionicons name="person-circle-outline" size={20} color="#fff" style={{ marginRight: 6 }} />
+                                <Text style={styles.profileIconText}>Profile</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         <Text style={styles.title}>Adaptive Fitness</Text>
                         <Text style={styles.subtitle}>Your AI-powered wellness guide.</Text>
 
@@ -235,6 +244,27 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         letterSpacing: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    profileIcon: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.4)',
+    },
+    profileIconText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 14,
     },
     disclaimer: {
         marginTop: 20,
