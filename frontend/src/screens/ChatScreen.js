@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
 import Markdown from 'react-native-markdown-display';
 import { lifestyleData } from '../utils/mockData';
 
-export default function ChatScreen({ route }) {
-    const { personality } = route.params;
+export default function ChatScreen({ route, navigation }) {
+    const defaultPersonality = { id: 'general', name: 'fitness' };
+    const personality = route.params?.personality || defaultPersonality;
     const [messages, setMessages] = useState([
         { id: '1', text: `Hello! I'm your ${personality.name} fitness companion. How can I help you today?`, sender: 'ai' }
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-
-    // Usage Duration Simulation (randomized for demo/MVP)
-    // In a real app, this would be stored in AsyncStorage/Database
     const usageDays = Math.floor(Math.random() * 12);
 
     const sendMessage = async () => {
@@ -25,8 +26,8 @@ export default function ChatScreen({ route }) {
         setLoading(true);
 
         try {
-            // Use base URL and append endpoint
             const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+            const token = await SecureStore.getItemAsync('userToken');
 
             const payload = {
                 message: input,
@@ -37,7 +38,9 @@ export default function ChatScreen({ route }) {
                 }
             };
 
-            const response = await axios.post(`${API_URL}/api/chat`, payload);
+            const response = await axios.post(`${API_URL}/api/chat`, payload, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
             const aiResponse = response.data.response || "I didn't understand that.";
             const aiMsg = { id: (Date.now() + 1).toString(), text: aiResponse, sender: 'ai', type: response.data.type };
@@ -58,9 +61,6 @@ export default function ChatScreen({ route }) {
             ...styles.messageText,
             ...styles.aiText,
         },
-        // You can add more specific markdown styles here if needed, e.g.,
-        // heading1: { color: 'blue' },
-        // list_item: { color: 'green' },
     };
 
     const renderItem = ({ item }) => (
@@ -76,7 +76,17 @@ export default function ChatScreen({ route }) {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#134E5E', '#71B280']}
+                style={styles.header}
+            >
+                <View style={styles.headerContent}>
+                    <Text style={styles.headerTitle}>{personality.name === 'fitness' ? 'Fitness Companion' : personality.name}</Text>
+                    <Text style={styles.headerSubtitle}>AI Assistant</Text>
+                </View>
+            </LinearGradient>
+
             <FlatList
                 data={messages}
                 renderItem={renderItem}
@@ -84,54 +94,82 @@ export default function ChatScreen({ route }) {
                 contentContainerStyle={styles.listContent}
             />
 
+            {loading && <ActivityIndicator size="small" color="#134E5E" style={{ margin: 10 }} />}
 
-            {loading && <ActivityIndicator size="small" color="#007AFF" style={{ margin: 10 }} />}
-
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={100}>
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.input}
                         value={input}
                         onChangeText={setInput}
                         placeholder="Ask about fitness..."
+                        placeholderTextColor="#999"
                     />
                     <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                        <Text style={styles.sendButtonText}>Send</Text>
+                        <Ionicons name="send" size={24} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f5f7fa',
+    },
+    header: {
+        paddingTop: 60,
+        paddingBottom: 20,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        marginBottom: 10
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#fff',
+        textTransform: 'capitalize'
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: 'rgba(255,255,255,0.8)',
     },
     listContent: {
-        padding: 15,
+        padding: 20,
+        paddingBottom: 20,
     },
     messageBubble: {
         maxWidth: '80%',
-        padding: 12,
-        borderRadius: 15,
-        marginBottom: 10,
+        padding: 15,
+        borderRadius: 20,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2
     },
     userBubble: {
         alignSelf: 'flex-end',
-        backgroundColor: '#007AFF',
-        borderBottomRightRadius: 2,
+        backgroundColor: '#134E5E',
+        borderBottomRightRadius: 5,
     },
     aiBubble: {
         alignSelf: 'flex-start',
         backgroundColor: '#fff',
-        borderBottomLeftRadius: 2,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
+        borderBottomLeftRadius: 5,
     },
     messageText: {
         fontSize: 16,
+        lineHeight: 22,
     },
     userText: {
         color: '#fff',
@@ -141,30 +179,35 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'row',
-        padding: 10,
+        padding: 15,
         backgroundColor: '#fff',
         borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
+        borderTopColor: '#f0f0f0',
         alignItems: 'center',
+        marginBottom: 85, // Account for Tab Bar height
     },
     input: {
         flex: 1,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
+        backgroundColor: '#f5f7fa',
+        borderRadius: 25,
+        paddingHorizontal: 20,
+        paddingVertical: 12,
         marginRight: 10,
         fontSize: 16,
+        color: '#333'
     },
     sendButton: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-    },
-    sendButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        backgroundColor: '#71B280',
+        width: 45,
+        height: 45,
+        borderRadius: 22.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#71B280',
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 4
     },
 });
 
