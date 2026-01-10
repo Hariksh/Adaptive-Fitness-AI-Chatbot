@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
-
+const Workouts = require("./routes/workoutRoutes");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/workouts", Workouts);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

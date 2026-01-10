@@ -38,7 +38,7 @@ const rotateApiKey = () => {
 };
 
 function getSystemPrompt(userContext = {}) {
-    const { personality, usageDays } = userContext;
+    const { personality, usageDays, profile } = userContext;
 
     let personalityInstruction = "You are a helpful fitness coach.";
     if (personality === 'A') personalityInstruction = "You are an 'Encouragement Seeker' coach. Be supportive and positive.";
@@ -50,9 +50,40 @@ function getSystemPrompt(userContext = {}) {
     else if (usageDays <= 8) durationInstruction = "Be a friendly listener (Week 1).";
     else durationInstruction = "Act like a seasoned coach (Regular User).";
 
+    let profileContext = "";
+    if (profile) {
+        profileContext = `
+        User Profile:
+        - Age: ${profile.age || 'Unknown'}
+        - Gender: ${profile.gender || 'Unknown'}
+        - Height: ${profile.height || 'Unknown'} cm
+        - Weight: ${profile.weight || 'Unknown'} kg
+        - Goal: ${profile.fitnessGoal || 'General Fitness'}
+        - Level: ${profile.fitnessLevel || 'Beginner'}
+        
+        Tailor your advice specifically to this profile.
+        `;
+    }
+
+    let workoutContext = "";
+    if (userContext.recentWorkouts && userContext.recentWorkouts.length > 0) {
+        const workouts = userContext.recentWorkouts.map(w =>
+            `- ${w.activityType}: ${w.duration} mins, ${w.caloriesBurned || '?'} cal (Date: ${new Date(w.date).toLocaleDateString()})`
+        ).join("\n");
+
+        workoutContext = `
+        Recent Workouts:
+        ${workouts}
+        
+        Acknowledge their recent activity if relevant.
+        `;
+    }
+
     return `
 ${personalityInstruction}
 ${durationInstruction}
+${profileContext}
+${workoutContext}
 
 User context: ${JSON.stringify(userContext)}
 Do NOT provide medical diagnosis.

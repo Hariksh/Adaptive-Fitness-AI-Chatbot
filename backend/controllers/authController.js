@@ -41,3 +41,33 @@ exports.login = async (req, res) => {
         res.status(500).json({ error: "Login failed" });
     }
 };
+
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select("-password");
+        if (!user) return res.status(404).json({ error: "User not found" });
+        res.json(user);
+    } catch (error) {
+        console.error("Get Profile Error:", error);
+        res.status(500).json({ error: "Failed to fetch profile" });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { age, gender, height, weight, fitnessGoal, fitnessLevel } = req.body;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.userId,
+            { age, gender, height, weight, fitnessGoal, fitnessLevel },
+            { new: true, runValidators: true }
+        ).select("-password");
+
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        res.json(user);
+    } catch (error) {
+        console.error("Update Profile Error:", error);
+        res.status(500).json({ error: "Failed to update profile" });
+    }
+};
