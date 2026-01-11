@@ -5,6 +5,9 @@
 
 A smart, personality-adaptive fitness companion that grows with you. This application uses Google's Gemini AI to provide personalized fitness coaching based on user personality, usage duration, and lifestyle data.
 
+## Demo Video
+[Watch Project Demo](https://drive.google.com/file/d/1lKJA_UK636u6SaMxn6mCx1Yxn0LDnoUz/view?usp=sharing)
+
 ---
 
 ## Key Features
