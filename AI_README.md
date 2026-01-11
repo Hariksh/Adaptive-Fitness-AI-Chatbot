@@ -1,70 +1,95 @@
-# AI Usage Documentation
+# AI Architecture & Prompt Engineering
 
-## 1. Tool Used
-*   **Tool Name**: Google Gemini API
-*   **Model**: `gemini-2.5-flash`
-*   **Purpose**: To generate context-aware fitness coaching responses.
+This document details the Artificial Intelligence architecture used in the Adaptive Fitness Chatbot. The system leverages Google's **Gemini 2.5 Flash** model, orchestrated via a Node.js backend.
 
-## 2. Prompts Used
+## 1. Core Architecture
 
-The system prompt is dynamically constructed in `backend/services/geminiService.js`.
+The AI layer is built on the `GoogleGenerativeAI` SDK. It features a custom **Context Injection System** that dynamically assembles the System Prompt based on real-time user data.
 
-### System Prompt Logic
+-   **Model**: `gemini-2.5-flash`
+-   **Temperature**: Default (Balanced for creativity and accuracy)
+-   **Failover Strategy**: Implements API Key rotation to handle rate limits (Error 429) or disabled keys.
+
+## 2. Dynamic Context Injection
+
+The prompt is not static. Before every API call, the system constructs a unique `System Prompt` using the following components:
+
+### A. Personality Injection
+The system selects one of three distinct system instructions based on the user's selected personality type:
+
+| Personality Type | System Instruction |
+| :--- | :--- |
+| **Type A (Encouragement Seeker)** | "You are an 'Encouragement Seeker' coach. Be supportive and positive." |
+| **Type B (Creative Explorer)** | "You are a 'Creative Explorer' coach. Be fun and unconventional." |
+| **Type C (Goal Finisher)** | "You are a 'Goal Finisher' coach. Be direct and efficient." |
+
+### B. Temporal Adaptation
+The AI changes its onboarding approach based on the User's `usageDuration`:
+
+-   **New User (< 3 days)**: "Be empathetic and grounded."
+-   **Week 1 (< 8 days)**: "Be a friendly listener (Week 1)."
+-   **Regular User (> 8 days)**: "Act like a seasoned coach."
+
+### C. Lifestyle Data (Mocked)
+To simulate wearable integration, the backend injects "Dummy Data" into the context block. This allows the AI to give specific advice even without real sensors.
+
+```text
+LIFESTYLE CONTEXT (Dummy Data):
+- Steps: 4200
+- Exercise: 25 mins
+- Sleep: 5.5 hours
+```
+
+## 3. Knowledge Retrieval (RAG-lite)
+
+The system utilizes a lightweight Retrieval-Augmented Generation (RAG) approach. A verified `knowledgeBase.js` object containing key fitness facts is serialized and injected directly into the prompt.
+
+**Instruction to AI:**
+> "YOUR TRUSTED KNOWLEDGE BASE (Prioritize this over general training)"
+
+This ensures the AI prioritizes our verified facts over its general training data when answering specific questions (e.g., about creatine or protein intake).
+
+## 4. Safety Guardrails
+
+To ensure user safety and legal compliance, the system prompt includes strict negative constraints:
+
+1.  **No Medical Diagnosis**: The AI is explicitly forbidden from diagnosing conditions.
+2.  **Medical Referral**: If a user asks about injury or pain, the AI must reply: *"I cannot give medical advice. Please see a doctor."*
+
+## 5. System Prompt Template
+
+The final prompt assembly looks like this (simplified representation):
 
 ```javascript
-/* 
-   Dynamic Variables:
-   - ${personalityInstruction}: Changes based on User Personality (A/B/C)
-   - ${durationInstruction}: Changes based on User Tenure (New/Regular)
-   - ${lifestylePrompt}: Dummy Data for Steps, Exercise, Sleep
-   - ${knowledgeContext}: Verified Facts (RAG-lite)
-   - ${profile...}: User's specific stats
-*/
-
 `
-    You are an adaptive fitness coach.
-    
-    ${personalityInstruction}
-    ${durationInstruction}
+You are an adaptive fitness coach.
 
-    YOUR TRUSTED KNOWLEDGE BASE (Prioritize this over general training):
-    ${knowledgeContext}
+${personalityInstruction}
+${durationInstruction}
 
-    USER PROFILE:
-    - Name: ${profile.name || 'User'}
-    - Age: ${profile.age || 'N/A'}
-    - Gender: ${profile.gender || 'N/A'}
-    - Goal: ${profile.fitnessGoal || 'General Health'}
-    - Level: ${profile.fitnessLevel || 'Beginner'}
+YOUR TRUSTED KNOWLEDGE BASE (Prioritize this over general training):
+${knowledgeContext}
 
-    LIFESTYLE CONTEXT (Dummy Data):
-    - Steps: 4200
-    - Exercise: 25 mins
-    - Sleep: 5.5 hours
+USER PROFILE:
+- Name: ${profile.name}
+- Age: ${profile.age}
+- Goal: ${profile.fitnessGoal}
 
-    INSTRUCTIONS:
-    1. Use the Knowledge Base to answer specific questions (e.g. protein, creatine).
-    2. Be short and encouraging.
-    3. If they ask about medical/injury, Say: "I cannot give medical advice. Please see a doctor."
-    4. Do NOT provide medical diagnosis.
+LIFESTYLE CONTEXT (Dummy Data):
+- Steps: ${lifestyleContext.steps}
+- Exercise: ${lifestyleContext.exerciseMinutes} mins
+- Sleep: ${lifestyleContext.sleepHours} hours
+
+INSTRUCTIONS:
+1. Use the Knowledge Base to answer specific questions.
+2. Be short and encouraging.
+3. If they ask about medical/injury, Say: "I cannot give medical advice. Please see a doctor."
+4. Do NOT provide medical diagnosis.
 `
 ```
 
-### Prompt Variable Definitions
+## 6. Implementation
 
-**1. Personality Instructions**
-*   **Type A**: "You are an 'Encouragement Seeker' coach..."
-*   **Type B**: "You are a 'Creative Explorer' coach..."
-*   **Type C**: "You are a 'Goal Finisher' coach..."
-
-**2. Duration Instructions**
-*   **< 3 Days**: "Be empathetic and grounded (New User)."
-*   **< 8 Days**: "Be a friendly listener (Week 1)."
-*   **Regular**: "Act like a seasoned coach (Regular User)."
-
-**3. Lifestyle Context (Dummy Data)**
-*   Mocks steps (4200), exercise (25m), and sleep (5.5h) to demonstrate API capability without wearable integration.
-
-**4. Safety Guardrails**
-*   "Do NOT provide medical diagnosis."
-*   "If they ask about medical/injury, Say: 'I cannot give medical advice...'"
+-   **File**: `backend/services/geminiService.js`
+-   **Function**: `getSystemPrompt(userContext)` constructs the string.
+-   **Execution**: `model.generateContent(fullPrompt)` sends the request.
