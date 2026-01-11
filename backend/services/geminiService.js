@@ -52,13 +52,14 @@ function getSystemPrompt(userContext = {}) {
     else if (usageDays <= 8) durationInstruction = "Be a friendly listener (Week 1).";
     else durationInstruction = "Act like a seasoned coach (Regular User).";
 
-    const recentWorkouts = userContext.recentWorkouts
-        ? userContext.recentWorkouts.map(w => `- ${w.activityType} (${w.duration} min)`).join('\n')
-        : "No recent workouts.";
+    const lifestyleContext = userContext.lifestyleContext || { steps: 0, exerciseMinutes: 0, sleepHours: 0 };
 
-    const todaysMeals = userContext.todaysMeals
-        ? userContext.todaysMeals.map(m => `- ${m.name} (${m.calories} cal)`).join('\n')
-        : "No meals logged today.";
+    const lifestylePrompt = `
+    LIFESTYLE CONTEXT (Dummy Data):
+    - Steps: ${lifestyleContext.steps}
+    - Exercise: ${lifestyleContext.exerciseMinutes} mins
+    - Sleep: ${lifestyleContext.sleepHours} hours
+    `;
 
     const knowledgeContext = JSON.stringify(knowledgeBase);
 
@@ -78,11 +79,7 @@ function getSystemPrompt(userContext = {}) {
     - Goal: ${profile.fitnessGoal || 'General Health'}
     - Level: ${profile.fitnessLevel || 'Beginner'}
 
-    RECENT ACTIVITY:
-    ${recentWorkouts}
-
-    NUTRITION TODAY:
-    ${todaysMeals}
+    ${lifestylePrompt}
 
     INSTRUCTIONS:
     1. Use the Knowledge Base to answer specific questions (e.g. protein, creatine).

@@ -9,29 +9,19 @@ exports.chat = async (req, res) => {
         const { message, userContext } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
-        let recentWorkouts = [];
-        let profile = null;
-        let todaysMeals = [];
-
         if (req.user && req.user.userId) {
             profile = await User.findById(req.user.userId).select('-password');
-
-            recentWorkouts = await Workout.find({ userId: req.user.userId })
-                .sort({ date: -1 })
-                .limit(3);
-
-            const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0);
-            const endOfDay = new Date();
-            endOfDay.setHours(23, 59, 59, 999);
-
-            todaysMeals = await Meal.find({
-                userId: req.user.userId,
-                date: { $gte: startOfDay, $lte: endOfDay }
-            });
         }
 
+        // Requirement 5.3: Lifestyle Context (Dummy Data)
+        // "The chatbot must consider basic lifestyle signals using dummy/mock data"
+        const lifestyleContext = {
+            steps: 4200,
+            exerciseMinutes: 25,
+            sleepHours: 5.5
+        };
 
+        // Calculate Usage Duration (Days since registration)
         let usageDays = 0;
         if (profile && profile.createdAt) {
             const now = new Date();
@@ -42,9 +32,8 @@ exports.chat = async (req, res) => {
 
         const enhancedContext = {
             ...userContext,
-            recentWorkouts,
             profile,
-            todaysMeals,
+            lifestyleContext,
             usageDays
         };
 

@@ -167,25 +167,9 @@ export default function ProfileScreen({ navigation }) {
                             <Text style={styles.sectionTitle}>Account Details</Text>
                         </View>
 
-                        <View style={styles.inputGroupFull}>
-                            <Text style={styles.label}>Name</Text>
-                            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Your Name" />
-                        </View>
-
-                        <View style={styles.inputGroupFull}>
-                            <Text style={styles.label}>Email</Text>
-                            <TextInput style={styles.input} value={userEmail} onChangeText={setUserEmail} keyboardType="email-address" autoCapitalize="none" />
-                        </View>
-
-                        <View style={styles.inputGroupFull}>
-                            <Text style={styles.label}>New Password (Optional)</Text>
-                            <TextInput
-                                style={styles.input}
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                                placeholder="Leave blank to keep current"
-                            />
+                        <View style={styles.userInfoCentered}>
+                            <Text style={styles.label}>Name: {name || 'User'}</Text>
+                            <Text style={styles.label}>Email: {userEmail || 'email@example.com'}</Text>
                         </View>
 
                         <View style={styles.divider} />
@@ -198,36 +182,15 @@ export default function ProfileScreen({ navigation }) {
                         <View style={styles.row}>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Age</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    value={age}
-                                    onChangeText={setAge}
-                                    keyboardType="numeric"
-                                    placeholder="25"
-                                    placeholderTextColor="#999"
-                                />
+                                <Text style={styles.valueText}>{age || 'N/A'}</Text>
                             </View>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Height (cm)</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    value={height}
-                                    onChangeText={setHeight}
-                                    keyboardType="numeric"
-                                    placeholder="175"
-                                    placeholderTextColor="#999"
-                                />
+                                <Text style={styles.valueText}>{height || 'N/A'}</Text>
                             </View>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Weight (kg)</Text>
-                                <TextInput
-                                    style={styles.input}
-                                    value={weight}
-                                    onChangeText={setWeight}
-                                    keyboardType="numeric"
-                                    placeholder="70"
-                                    placeholderTextColor="#999"
-                                />
+                                <Text style={styles.valueText}>{weight || 'N/A'}</Text>
                             </View>
                         </View>
 
@@ -237,11 +200,7 @@ export default function ProfileScreen({ navigation }) {
                             <Ionicons name="male-female-outline" size={20} color="#134E5E" />
                             <Text style={styles.sectionTitle}>Gender</Text>
                         </View>
-                        <View style={styles.selectionRow}>
-                            {['Male', 'Female', 'Other'].map(opt => (
-                                <SelectionButton key={opt} label={opt} value={opt} selectedValue={gender} onSelect={setGender} />
-                            ))}
-                        </View>
+                        <Text style={styles.valueText}>{gender || 'N/A'}</Text>
 
                         <View style={styles.divider} />
 
@@ -249,11 +208,7 @@ export default function ProfileScreen({ navigation }) {
                             <Ionicons name="fitness-outline" size={20} color="#134E5E" />
                             <Text style={styles.sectionTitle}>Fitness Level</Text>
                         </View>
-                        <View style={styles.selectionRow}>
-                            {['Beginner', 'Intermediate', 'Advanced'].map(opt => (
-                                <SelectionButton key={opt} label={opt} value={opt} selectedValue={fitnessLevel} onSelect={setFitnessLevel} />
-                            ))}
-                        </View>
+                        <Text style={styles.valueText}>{fitnessLevel || 'N/A'}</Text>
 
                         <View style={styles.divider} />
 
@@ -263,18 +218,11 @@ export default function ProfileScreen({ navigation }) {
                         </View>
 
                         <View style={styles.historyRow}>
-                            <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('ActivityHistory')}>
-                                <View style={[styles.iconCircle, { backgroundColor: '#E3F2FD' }]}>
-                                    <Ionicons name="barbell" size={24} color="#2196F3" />
-                                </View>
-                                <Text style={styles.historyButtonText}>Workouts</Text>
-                            </TouchableOpacity>
-
                             <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('ChatHistory')}>
                                 <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
                                     <Ionicons name="chatbubbles" size={24} color="#009688" />
                                 </View>
-                                <Text style={styles.historyButtonText}>Chats</Text>
+                                <Text style={styles.historyButtonText}>Chat History</Text>
                             </TouchableOpacity>
                         </View>
 
