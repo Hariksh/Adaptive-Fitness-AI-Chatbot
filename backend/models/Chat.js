@@ -6,12 +6,17 @@ const chatSchema = new mongoose.Schema({
         required: true,
         enum: ['user', 'ai', 'system']
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false // Optional for system messages, but required for user/ai chat
+    },
     content: {
         type: String,
         required: true
     },
     userContext: {
-        type: Object, 
+        type: Object,
         default: {}
     },
     timestamp: {

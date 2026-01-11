@@ -15,7 +15,6 @@ exports.logMeal = async (req, res) => {
             fats
         });
 
-        // Award 2 Coins for Meal
         if (req.user && req.user.userId) {
             await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 2 } });
         }

@@ -14,15 +14,12 @@ exports.chat = async (req, res) => {
         let todaysMeals = [];
 
         if (req.user && req.user.userId) {
-            // Fetch Profile
             profile = await User.findById(req.user.userId).select('-password');
 
-            // Fetch Recent Workouts
             recentWorkouts = await Workout.find({ userId: req.user.userId })
                 .sort({ date: -1 })
                 .limit(3);
 
-            // Fetch Today's Meals
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date();
@@ -35,7 +32,6 @@ exports.chat = async (req, res) => {
         }
 
 
-        // Calculate Usage Duration (Days since registration)
         let usageDays = 0;
         if (profile && profile.createdAt) {
             const now = new Date();
@@ -44,22 +40,30 @@ exports.chat = async (req, res) => {
             usageDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        // Attach to context
         const enhancedContext = {
             ...userContext,
             recentWorkouts,
             profile,
             todaysMeals,
-            usageDays // Override frontend value with server-side truth
+            usageDays
         };
 
-        Chat.create({ role: "user", content: message, userContext: enhancedContext }).catch(err => console.error("DB Save Error:", err.message));
+        Chat.create({
+            userId: req.user.userId,
+            role: "user",
+            content: message,
+            userContext: enhancedContext
+        }).catch(err => console.error("DB Save Error:", err.message));
 
         const aiResponse = await geminiService.generateResponse(message, enhancedContext);
 
-        Chat.create({ role: "ai", content: aiResponse, userContext: enhancedContext }).catch(err => console.error("DB Save Error:", err.message));
+        Chat.create({
+            userId: req.user.userId,
+            role: "ai",
+            content: aiResponse,
+            userContext: enhancedContext
+        }).catch(err => console.error("DB Save Error:", err.message));
 
-        // Award Coin
         if (req.user && req.user.userId) {
             await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 1 } });
         }
@@ -78,11 +82,11 @@ exports.getHistory = async (req, res) => {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
-        const history = await Chat.find({ "userContext.profile._id": req.user.userId })
+        const history = await Chat.find({ userId: req.user.userId })
             .sort({ timestamp: -1 })
             .limit(50);
 
-        // Group by conversation session roughly (for now just returning flat list)
+
         res.json(history);
     } catch (error) {
         console.error("Get History Error:", error);

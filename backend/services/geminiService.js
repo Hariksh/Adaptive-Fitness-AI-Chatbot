@@ -60,7 +60,6 @@ function getSystemPrompt(userContext = {}) {
         ? userContext.todaysMeals.map(m => `- ${m.name} (${m.calories} cal)`).join('\n')
         : "No meals logged today.";
 
-    // RAG-LITE INJECTION
     const knowledgeContext = JSON.stringify(knowledgeBase);
 
     return `

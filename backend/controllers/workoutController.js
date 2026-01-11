@@ -14,7 +14,6 @@ exports.logWorkout = async (req, res) => {
             notes
         });
 
-        // Award 5 Coins for Workout
         if (req.user && req.user.userId) {
             await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 5 } });
         }
