@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['Beginner', 'Intermediate', 'Advanced']
     },
+    coins: {
+        type: Number,
+        default: 10
+    },
     createdAt: {
         type: Date,
         default: Date.now

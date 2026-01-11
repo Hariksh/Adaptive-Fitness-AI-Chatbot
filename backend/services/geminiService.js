@@ -37,6 +37,8 @@ const rotateApiKey = () => {
     return true;
 };
 
+const knowledgeBase = require('../data/knowledgeBase');
+
 function getSystemPrompt(userContext = {}) {
     const { personality, usageDays, profile } = userContext;
 
@@ -50,68 +52,52 @@ function getSystemPrompt(userContext = {}) {
     else if (usageDays <= 8) durationInstruction = "Be a friendly listener (Week 1).";
     else durationInstruction = "Act like a seasoned coach (Regular User).";
 
-    let profileContext = "";
-    if (profile) {
-        profileContext = `
-        User Profile:
-        - Age: ${profile.age || 'Unknown'}
-        - Gender: ${profile.gender || 'Unknown'}
-        - Height: ${profile.height || 'Unknown'} cm
-        - Weight: ${profile.weight || 'Unknown'} kg
-        - Goal: ${profile.fitnessGoal || 'General Fitness'}
-        - Level: ${profile.fitnessLevel || 'Beginner'}
-        
-        Tailor your advice specifically to this profile.
-        `;
-    }
+    const recentWorkouts = userContext.recentWorkouts
+        ? userContext.recentWorkouts.map(w => `- ${w.activityType} (${w.duration} min)`).join('\n')
+        : "No recent workouts.";
 
-    let workoutContext = "";
-    if (userContext.recentWorkouts && userContext.recentWorkouts.length > 0) {
-        const workouts = userContext.recentWorkouts.map(w =>
-            `- ${w.activityType}: ${w.duration} mins, ${w.caloriesBurned || '?'} cal (Date: ${new Date(w.date).toLocaleDateString()})`
-        ).join("\n");
+    const todaysMeals = userContext.todaysMeals
+        ? userContext.todaysMeals.map(m => `- ${m.name} (${m.calories} cal)`).join('\n')
+        : "No meals logged today.";
 
-        workoutContext = `
-        Recent Workouts:
-        ${workouts}
-        
-        Acknowledge their recent activity if relevant.
-        `;
-    }
-
-    let nutritionContext = "";
-    if (userContext.todaysMeals && userContext.todaysMeals.length > 0) {
-        const meals = userContext.todaysMeals.map(m =>
-            `- ${m.name} (${m.type}): ${m.calories} cal`
-        ).join("\n");
-        const totalCals = userContext.todaysMeals.reduce((sum, m) => sum + m.calories, 0);
-
-        nutritionContext = `
-        Today's Nutrition:
-        ${meals}
-        Total Calories Consumed Today: ${totalCals}
-        
-        Consider their calorie intake when giving advice.
-        `;
-    }
+    // RAG-LITE INJECTION
+    const knowledgeContext = JSON.stringify(knowledgeBase);
 
     return `
-${personalityInstruction}
-${durationInstruction}
-${profileContext}
-${workoutContext}
-${nutritionContext}
+    You are an adaptive fitness coach.
+    
+    ${personalityInstruction}
+    ${durationInstruction}
 
-User context: ${JSON.stringify(userContext)}
-Do NOT provide medical diagnosis.
-`;
+    YOUR TRUSTED KNOWLEDGE BASE (Prioritize this over general training):
+    ${knowledgeContext}
+
+    USER PROFILE:
+    - Name: ${profile.name || 'User'}
+    - Age: ${profile.age || 'N/A'}
+    - Gender: ${profile.gender || 'N/A'}
+    - Goal: ${profile.fitnessGoal || 'General Health'}
+    - Level: ${profile.fitnessLevel || 'Beginner'}
+
+    RECENT ACTIVITY:
+    ${recentWorkouts}
+
+    NUTRITION TODAY:
+    ${todaysMeals}
+
+    INSTRUCTIONS:
+    1. Use the Knowledge Base to answer specific questions (e.g. protein, creatine).
+    2. Be short and encouraging.
+    3. If they ask about medical/injury, Say: "I cannot give medical advice. Please see a doctor."
+    4. Do NOT provide medical diagnosis.
+    `;
 }
 
 exports.generateResponse = async (message, userContext) => {
     if (!model) throw new Error("Gemini not initialized");
 
     const systemPrompt = getSystemPrompt(userContext);
-    const fullPrompt = `${systemPrompt}\n\nUser Question: ${message}`;
+    const fullPrompt = `${systemPrompt} \n\nUser Question: ${message} `;
 
     let aiResponse = "";
     let attempt = 0;
@@ -126,13 +112,13 @@ exports.generateResponse = async (message, userContext) => {
             success = true;
 
         } catch (aiError) {
-            console.error(`API Call Failed (Attempt ${attempt}/${maxAttempts}):`, aiError.message);
+            console.error(`API Call Failed(Attempt ${attempt} / ${maxAttempts}): `, aiError.message);
 
             const isRateLimit = aiError.message?.includes("429") || aiError.status === 429;
             const isNotEnabled = aiError.message?.includes("404") || aiError.message?.includes("not enabled");
 
             if (isRateLimit || isNotEnabled) {
-                console.warn(`API Issue (${isRateLimit ? 'Rate Limit' : 'Not Enabled'}) on Key [${currentKeyIndex}]. Initiating Failover...`);
+                console.warn(`API Issue(${isRateLimit ? 'Rate Limit' : 'Not Enabled'}) on Key[${currentKeyIndex}]. Initiating Failover...`);
 
                 const rotated = rotateApiKey();
                 if (!rotated) {

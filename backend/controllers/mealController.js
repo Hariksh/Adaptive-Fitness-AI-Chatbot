@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const Meal = require('../models/Meal');
 
 exports.logMeal = async (req, res) => {
@@ -13,6 +14,11 @@ exports.logMeal = async (req, res) => {
             carbs,
             fats
         });
+
+        // Award 2 Coins for Meal
+        if (req.user && req.user.userId) {
+            await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 2 } });
+        }
 
         res.json(meal);
     } catch (error) {

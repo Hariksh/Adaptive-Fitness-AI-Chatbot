@@ -38,7 +38,7 @@ exports.login = async (req, res) => {
         res.json({ token, user: { name: user.name, email: user.email } });
     } catch (error) {
         console.error("Login Error:", error);
-        res.status(500).json({ error: "Login failed" });
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -55,11 +55,21 @@ exports.getProfile = async (req, res) => {
 
 exports.updateProfile = async (req, res) => {
     try {
-        const { age, gender, height, weight, fitnessGoal, fitnessLevel } = req.body;
+        const { name, email, password, age, gender, height, weight, fitnessGoal, fitnessLevel } = req.body;
+
+        const updates = { name, email, age, gender, height, weight, fitnessGoal, fitnessLevel };
+
+        // Remove undefined/empty fields
+        Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
+
+        if (password && password.trim() !== "") {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updates.password = hashedPassword;
+        }
 
         const user = await User.findByIdAndUpdate(
             req.user.userId,
-            { age, gender, height, weight, fitnessGoal, fitnessLevel },
+            updates,
             { new: true, runValidators: true }
         ).select("-password");
 

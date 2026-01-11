@@ -11,6 +11,7 @@ import ChatScreen from '../screens/ChatScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import WorkoutLogScreen from '../screens/WorkoutLogScreen';
 import ActivityHistoryScreen from '../screens/ActivityHistoryScreen';
+import ChatHistoryScreen from '../screens/ChatHistoryScreen';
 import StatsScreen from '../screens/StatsScreen';
 import MealPlanScreen from '../screens/MealPlanScreen';
 import CalorieTrackerScreen from '../screens/CalorieTrackerScreen';
@@ -79,6 +80,11 @@ export default function AppNavigator() {
                     name="ActivityHistory"
                     component={ActivityHistoryScreen}
                     options={{ title: 'History' }}
+                />
+                <Stack.Screen
+                    name="ChatHistory"
+                    component={ChatHistoryScreen}
+                    options={{ title: 'Chat Logs' }}
                 />
                 <Stack.Screen
                     name="MealPlan"

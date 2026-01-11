@@ -21,6 +21,8 @@ export default function ProfileScreen({ navigation }) {
     const [fitnessLevel, setFitnessLevel] = useState('Beginner');
     const [name, setName] = useState('');
     const [userEmail, setUserEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [coins, setCoins] = useState(0);
 
     useEffect(() => {
         fetchProfile();
@@ -47,6 +49,7 @@ export default function ProfileScreen({ navigation }) {
             const user = response.data;
             setName(user.name);
             setUserEmail(user.email);
+            setCoins(user.coins || 0);
             if (user.age) setAge(user.age.toString());
             if (user.height) setHeight(user.height.toString());
             if (user.weight) setWeight(user.weight.toString());
@@ -69,6 +72,9 @@ export default function ProfileScreen({ navigation }) {
             const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
             await axios.put(`${API_URL}/api/auth/profile`, {
+                name,
+                email: userEmail,
+                password: password || undefined,
                 age: Number(age),
                 height: Number(height),
                 weight: Number(weight),
@@ -130,21 +136,59 @@ export default function ProfileScreen({ navigation }) {
             />
 
             <View style={styles.headerBar}>
-            <Text style={styles.headerTitle}>My Profile</Text>
+                <Text style={styles.headerTitle}>My Profile</Text>
                 <View style={{ width: 24 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
                 <Animated.View style={{ opacity: fadeAnim }}>
-                    <View style={styles.avatarContainer}>
-                        <View style={styles.avatarCircle}>
-                            <Text style={styles.avatarText}>{name ? name[0].toUpperCase() : 'U'}</Text>
+                    <View style={styles.card}>
+                        <View style={styles.headerCentered}>
+                            <View style={styles.avatarContainer}>
+                                <View style={styles.avatarCircle}>
+                                    <Text style={styles.avatarText}>{name?.charAt(0) || 'U'}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.userInfoCentered}>
+                                <Text style={styles.userName}>{name || 'User'}</Text>
+                                <Text style={styles.userEmail}>{userEmail || 'email@example.com'}</Text>
+                                <View style={styles.coinBadgeCentered}>
+                                    <Ionicons name="ribbon" size={18} color="#B78628" />
+                                    <Text style={styles.coinText}>{coins} Coins</Text>
+                                </View>
+                            </View>
                         </View>
-                        <Text style={styles.userName}>{name}</Text>
-                        <Text style={styles.userEmail}>{userEmail}</Text>
                     </View>
 
                     <View style={styles.card}>
+
+                        <View style={styles.sectionHeader}>
+                            <Ionicons name="person-circle-outline" size={22} color="#134E5E" />
+                            <Text style={styles.sectionTitle}>Account Details</Text>
+                        </View>
+
+                        <View style={styles.inputGroupFull}>
+                            <Text style={styles.label}>Name</Text>
+                            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Your Name" />
+                        </View>
+
+                        <View style={styles.inputGroupFull}>
+                            <Text style={styles.label}>Email</Text>
+                            <TextInput style={styles.input} value={userEmail} onChangeText={setUserEmail} keyboardType="email-address" autoCapitalize="none" />
+                        </View>
+
+                        <View style={styles.inputGroupFull}>
+                            <Text style={styles.label}>New Password (Optional)</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                                placeholder="Leave blank to keep current"
+                            />
+                        </View>
+
+                        <View style={styles.divider} />
 
                         <View style={styles.sectionHeader}>
                             <Ionicons name="body-outline" size={20} color="#134E5E" />
@@ -214,6 +258,29 @@ export default function ProfileScreen({ navigation }) {
                         <View style={styles.divider} />
 
                         <View style={styles.sectionHeader}>
+                            <Ionicons name="time-outline" size={22} color="#134E5E" />
+                            <Text style={styles.sectionTitle}>History & Logs</Text>
+                        </View>
+
+                        <View style={styles.historyRow}>
+                            <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('ActivityHistory')}>
+                                <View style={[styles.iconCircle, { backgroundColor: '#E3F2FD' }]}>
+                                    <Ionicons name="barbell" size={24} color="#2196F3" />
+                                </View>
+                                <Text style={styles.historyButtonText}>Workouts</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={styles.historyButton} onPress={() => navigation.navigate('ChatHistory')}>
+                                <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
+                                    <Ionicons name="chatbubbles" size={24} color="#009688" />
+                                </View>
+                                <Text style={styles.historyButtonText}>Chats</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.divider} />
+
+                        <View style={styles.sectionHeader}>
                             <Ionicons name="trophy-outline" size={20} color="#134E5E" />
                             <Text style={styles.sectionTitle}>Main Goal</Text>
                         </View>
@@ -253,21 +320,37 @@ const styles = StyleSheet.create({
     content: { padding: 20, paddingBottom: 50 },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#134E5E' },
 
-    avatarContainer: { alignItems: 'center', marginBottom: 25 },
+    headerCentered: { alignItems: 'center', marginBottom: 20 },
+    userInfoCentered: { alignItems: 'center', marginTop: 10 },
+
+    avatarContainer: { alignItems: 'center', shadowColor: '#134E5E', shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 5 } },
     avatarCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.5)',
-        marginBottom: 10
+        borderWidth: 3,
+        borderColor: '#71B280',
+        marginBottom: 5,
+        elevation: 5
     },
-    avatarText: { fontSize: 32, fontWeight: 'bold', color: '#fff' },
-    userName: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-    userEmail: { fontSize: 14, color: 'rgba(255,255,255,0.8)' },
+
+    coinBadgeCentered: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 12,
+        backgroundColor: '#FFFBE6',
+        paddingVertical: 6,
+        paddingHorizontal: 16,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#FFE58F'
+    },
+    avatarText: { fontSize: 32, fontWeight: 'bold', color: '#134E5E' },
+    userName: { fontSize: 24, fontWeight: 'bold', color: '#333' },
+    userEmail: { fontSize: 14, color: '#666' },
 
     card: { backgroundColor: 'white', borderRadius: 25, padding: 25, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 15, elevation: 8 },
 
@@ -278,8 +361,38 @@ const styles = StyleSheet.create({
 
     row: { flexDirection: 'row', justifyContent: 'space-between' },
     inputGroup: { flex: 1, marginRight: 10 },
+    inputGroupFull: { marginBottom: 15 },
     label: { fontSize: 12, fontWeight: '600', color: '#888', marginBottom: 5, textTransform: 'uppercase' },
     input: { backgroundColor: '#f5f7fa', borderRadius: 12, padding: 12, fontSize: 16, color: '#333', borderWidth: 1, borderColor: '#e1e8ed' },
+
+    historyRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
+    historyButton: {
+        flex: 1,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 15,
+        marginHorizontal: 5,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#eee',
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2
+    },
+    iconCircle: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8
+    },
+    historyButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#555'
+    },
 
     selectionRow: { flexDirection: 'row', flexWrap: 'wrap' },
     selectionGrid: { flexDirection: 'row', flexWrap: 'wrap' },

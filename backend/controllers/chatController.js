@@ -34,12 +34,23 @@ exports.chat = async (req, res) => {
             });
         }
 
+
+        // Calculate Usage Duration (Days since registration)
+        let usageDays = 0;
+        if (profile && profile.createdAt) {
+            const now = new Date();
+            const created = new Date(profile.createdAt);
+            const diffTime = Math.abs(now - created);
+            usageDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
         // Attach to context
         const enhancedContext = {
             ...userContext,
             recentWorkouts,
             profile,
-            todaysMeals
+            todaysMeals,
+            usageDays // Override frontend value with server-side truth
         };
 
         Chat.create({ role: "user", content: message, userContext: enhancedContext }).catch(err => console.error("DB Save Error:", err.message));
@@ -48,10 +59,33 @@ exports.chat = async (req, res) => {
 
         Chat.create({ role: "ai", content: aiResponse, userContext: enhancedContext }).catch(err => console.error("DB Save Error:", err.message));
 
+        // Award Coin
+        if (req.user && req.user.userId) {
+            await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 1 } });
+        }
+
         res.json({ response: aiResponse, type: "text" });
 
     } catch (error) {
         console.error("Chat Controller Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+exports.getHistory = async (req, res) => {
+    try {
+        if (!req.user || !req.user.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const history = await Chat.find({ "userContext.profile._id": req.user.userId })
+            .sort({ timestamp: -1 })
+            .limit(50);
+
+        // Group by conversation session roughly (for now just returning flat list)
+        res.json(history);
+    } catch (error) {
+        console.error("Get History Error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };

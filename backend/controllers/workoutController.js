@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const Workout = require('../models/Workout');
 const mongoose = require('mongoose');
 
@@ -12,6 +13,11 @@ exports.logWorkout = async (req, res) => {
             caloriesBurned,
             notes
         });
+
+        // Award 5 Coins for Workout
+        if (req.user && req.user.userId) {
+            await User.findByIdAndUpdate(req.user.userId, { $inc: { coins: 5 } });
+        }
 
         res.json(workout);
     } catch (error) {

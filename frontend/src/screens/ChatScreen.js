@@ -15,7 +15,7 @@ export default function ChatScreen({ route, navigation }) {
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const usageDays = Math.floor(Math.random() * 12);
+    // usageDays is now calculated on the backend based on user registration date
 
     const sendMessage = async () => {
         if (!input.trim()) return;
@@ -33,7 +33,6 @@ export default function ChatScreen({ route, navigation }) {
                 message: input,
                 userContext: {
                     personality: personality.id,
-                    usageDays,
                     lifestyleData
                 }
             };
