@@ -182,15 +182,36 @@ export default function ProfileScreen({ navigation }) {
                         <View style={styles.row}>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Age</Text>
-                                <Text style={styles.valueText}>{age || 'N/A'}</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={age}
+                                    onChangeText={setAge}
+                                    keyboardType="numeric"
+                                    placeholder="0"
+                                    placeholderTextColor="#999"
+                                />
                             </View>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Height (cm)</Text>
-                                <Text style={styles.valueText}>{height || 'N/A'}</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={height}
+                                    onChangeText={setHeight}
+                                    keyboardType="numeric"
+                                    placeholder="0"
+                                    placeholderTextColor="#999"
+                                />
                             </View>
                             <View style={styles.inputGroup}>
                                 <Text style={styles.label}>Weight (kg)</Text>
-                                <Text style={styles.valueText}>{weight || 'N/A'}</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={weight}
+                                    onChangeText={setWeight}
+                                    keyboardType="numeric"
+                                    placeholder="0"
+                                    placeholderTextColor="#999"
+                                />
                             </View>
                         </View>
 
@@ -200,7 +221,11 @@ export default function ProfileScreen({ navigation }) {
                             <Ionicons name="male-female-outline" size={20} color="#134E5E" />
                             <Text style={styles.sectionTitle}>Gender</Text>
                         </View>
-                        <Text style={styles.valueText}>{gender || 'N/A'}</Text>
+                        <View style={styles.selectionGrid}>
+                            {['Male', 'Female', 'Other'].map(opt => (
+                                <SelectionButton key={opt} label={opt} value={opt} selectedValue={gender} onSelect={setGender} />
+                            ))}
+                        </View>
 
                         <View style={styles.divider} />
 
@@ -208,7 +233,11 @@ export default function ProfileScreen({ navigation }) {
                             <Ionicons name="fitness-outline" size={20} color="#134E5E" />
                             <Text style={styles.sectionTitle}>Fitness Level</Text>
                         </View>
-                        <Text style={styles.valueText}>{fitnessLevel || 'N/A'}</Text>
+                        <View style={styles.selectionGrid}>
+                            {['Beginner', 'Intermediate', 'Advanced'].map(opt => (
+                                <SelectionButton key={opt} label={opt} value={opt} selectedValue={fitnessLevel} onSelect={setFitnessLevel} />
+                            ))}
+                        </View>
 
                         <View style={styles.divider} />
 
