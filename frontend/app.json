@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.hariksh07.adaptivefitnessaichatbot"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,9 +31,9 @@
       "expo-secure-store"
     ],
     "extra": {
-  "eas": {
-    "projectId": "16068294-2e9b-4221-b0fc-81af3be61e92"
-  }
-}
+      "eas": {
+        "projectId": "6901a592-a7ef-4b90-a73c-f2ecebf50e7d"
+      }
+    }
   }
 }
