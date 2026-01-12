@@ -5,6 +5,17 @@
 
 A smart, personality-adaptive fitness companion that grows with you. This application uses Google's Gemini AI to provide personalized fitness coaching based on user personality, usage duration, and lifestyle data.
 
+## Download APK
+
+You can download the Android APK directly from this repository:
+
+- [Download APK (Direct)](https://expo.dev/artifacts/eas/mZv6p1KxgTwffm9p8k2QXP.apk)
+- [View Build on Expo](https://expo.dev/accounts/hariksh07/projects/adaptive-fitness-ai-chatbot/builds/b5df592e-cd75-40dc-875d-be48df8c48dd)
+
+Place the `AdaptiveFitnessAI.apk` file in the `apk/` folder (or replace the placeholder there) so the above link works, or attach the APK to a GitHub Release for distribution.
+
+---
+
 ## Demo Video
 [Watch Project Demo](https://drive.google.com/file/d/1lKJA_UK636u6SaMxn6mCx1Yxn0LDnoUz/view?usp=sharing)
 
@@ -72,17 +83,6 @@ The System Prompt includes strict negative constraints:
 -   **Backend:** Node.js, Express.js
 -   **Database:** MongoDB
 -   **AI Engine:** Google Gemini API (`gemini-2.5-flash`)
-
----
-
-## Download APK
-
-You can download the Android APK directly from this repository:
-
-- [Download APK (Direct)](https://expo.dev/artifacts/eas/mZv6p1KxgTwffm9p8k2QXP.apk)
-- [View Build on Expo](https://expo.dev/accounts/hariksh07/projects/adaptive-fitness-ai-chatbot/builds/b5df592e-cd75-40dc-875d-be48df8c48dd)
-
-Place the `AdaptiveFitnessAI.apk` file in the `apk/` folder (or replace the placeholder there) so the above link works, or attach the APK to a GitHub Release for distribution.
 
 ---
 
