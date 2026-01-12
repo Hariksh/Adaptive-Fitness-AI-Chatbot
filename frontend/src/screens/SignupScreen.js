@@ -18,7 +18,7 @@ export default function SignupScreen({ navigation }) {
 
         setLoading(true);
         try {
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://adaptive-fitness-ai-chatbot-6ci2.onrender.com';
             const response = await axios.post(`${API_URL}/api/auth/register`, {
                 name,
                 email,

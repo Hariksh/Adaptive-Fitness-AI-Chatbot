@@ -41,7 +41,7 @@ export default function ProfileScreen({ navigation }) {
                 return;
             }
 
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://adaptive-fitness-ai-chatbot-6ci2.onrender.com';
             const response = await axios.get(`${API_URL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -69,7 +69,7 @@ export default function ProfileScreen({ navigation }) {
         setLoading(true);
         try {
             const token = await SecureStore.getItemAsync('userToken');
-            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+            const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://adaptive-fitness-ai-chatbot-6ci2.onrender.com';
 
             await axios.put(`${API_URL}/api/auth/profile`, {
                 name,
