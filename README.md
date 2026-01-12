@@ -75,6 +75,17 @@ The System Prompt includes strict negative constraints:
 
 ---
 
+## Download APK
+
+You can download the Android APK directly from this repository:
+
+- [Download APK (Direct)](https://expo.dev/artifacts/eas/mZv6p1KxgTwffm9p8k2QXP.apk)
+- [View Build on Expo](https://expo.dev/accounts/hariksh07/projects/adaptive-fitness-ai-chatbot/builds/b5df592e-cd75-40dc-875d-be48df8c48dd)
+
+Place the `AdaptiveFitnessAI.apk` file in the `apk/` folder (or replace the placeholder there) so the above link works, or attach the APK to a GitHub Release for distribution.
+
+---
+
 ## Prerequisites
 
 Before running the project, ensure you have the following installed:
