@@ -29,9 +29,9 @@
       "expo-secure-store"
     ],
     "extra": {
-      "eas": {
-        "projectId": "e42eab00-5836-4980-85da-093f20dd97bb"
-      }
-    }
+  "eas": {
+    "projectId": "16068294-2e9b-4221-b0fc-81af3be61e92"
+  }
+}
   }
 }
