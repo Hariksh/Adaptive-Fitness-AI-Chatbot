@@ -1,8 +1,6 @@
 const Chat = require("../models/Chat");
 const geminiService = require("../services/geminiService");
-const Workout = require("../models/Workout");
 const User = require("../models/User");
-const Meal = require("../models/Meal");
 
 exports.chat = async (req, res) => {
     try {
